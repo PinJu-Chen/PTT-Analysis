@@ -16,6 +16,7 @@ with open('D://submission_complete.csv', 'r', encoding = 'utf-8') as f:
                         break
                     if i == len(L) - 1:
                         L.append([aword, 1])
+
 L.sort()        
 print(L)
 import matplotlib.pyplot as py

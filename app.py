@@ -23,11 +23,14 @@ df = pd.read_csv(r'D:\PCB\rawdata.csv')
 
 '''-------------------資料處理-------------------'''
 # 主揪top3
-df1 = df[~(df.title.str.contains('公告')|
+dft = df[~(df.title.str.contains('公告')|
       df.title.str.contains('黑人')|
       df.title.str.contains('灰人')|
       df.title.str.contains('黑名單')|
-      df.title.str.contains('判決'))]
+      df.title.str.contains('判決')|
+      df.title.str.contains('無主'))]
+dft = pd.DataFrame(dft.groupby('author').count().nlargest(5, columns='id'))
+dft['author'] = dft.index
 
 # 黑名單
 blackdf = df[(df.title.str.contains('黑人')|
@@ -52,14 +55,18 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 # 主標
-header = html.H1(children="解析合購版")
+header = html.H1(children="解析合購版",style={'font-weight': 'bold'})
 
 # Top 3 table
 top3 = dash_table.DataTable(
             id='top3',
-            columns=[{"name": 'Author', "id": 'author'}],
-            data=df1.head(3).to_dict('records'),
-            editable=False
+            columns=[{"name": 'Top 3 Shopaholics', "id": 'author'}],
+            data=dft.head(3).to_dict('records'),
+            editable=False,
+            style_header={
+                'backgroundColor': 'rgb(230, 230, 230)',
+                'fontWeight': 'bold'
+                }
         )
 
 # Blacklist table
@@ -70,8 +77,12 @@ blacklist = dash_table.DataTable(
                 filter_action="native",
                 editable=False,
                 page_size= 20,
-                style_cell={'minWidth': 95, 'maxWidth': 95, 'width': 95}
-            )
+                style_cell={'minWidth': 95, 'maxWidth': 95, 'width': 95},
+                style_header={
+                    'backgroundColor': 'rgb(230, 230, 230)',
+                    'fontWeight': 'bold'
+                    }
+                )
 
 # 時間軸
 year_slider = dcc.RangeSlider(id='year_slider',
@@ -92,7 +103,10 @@ chart1 = px.bar(x=df.groupby('month').size().index,
                 y=df.groupby('month').size()/df.groupby('month').size().sum()*100,
                 title="Month Percentage(%)",
                 labels={"x":"Month",
-                        "y":"Percentage(%)"}
+                        "y":"Percentage(%)"},
+                category_orders={"x": 
+                                 ['Jan','Feb','Mar','Apr','May', 'Jun',
+                                  'Jul','Aug','Sep','Oct','Nov','Dec']}
                 )
 
 
@@ -107,7 +121,10 @@ chart2 = px.bar(x=df.groupby('week').size().index,
                 y=df.groupby('week').size()/df.groupby('week').size().sum()*100,
                 title="Week Percentage(%)",
                 labels={"x":"Week",
-                        "y":"Percentage(%)"}
+                        "y":"Percentage(%)"},
+                category_orders={"x": 
+                                 ['Mon','Tue','Wed','Thu',
+                                  'Fri', 'Sat', 'Sun']}
                 )
 
 

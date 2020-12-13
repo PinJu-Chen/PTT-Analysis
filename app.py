@@ -69,7 +69,8 @@ blacklist = dash_table.DataTable(
                 data=blackdf.to_dict('records'),
                 filter_action="native",
                 editable=False,
-                page_size= 20
+                page_size= 20,
+                style_cell={'minWidth': 95, 'maxWidth': 95, 'width': 95}
             )
 
 # 時間軸
@@ -83,11 +84,12 @@ year_slider = dcc.RangeSlider(id='year_slider',
                                   2020: '2020'},
                               min=2015,
                               max=2020,
-                              value=[2017,2020])
+                              value=[2017,2020],
+                              className='ten columns')
 
 # 以px繪製月份圖，並丟入dcc.Graph
 chart1 = px.bar(x=df.groupby('month').size().index,
-                y=df.groupby('month').size(),
+                y=df.groupby('month').size()/df.groupby('month').size().sum()*100,
                 title="Month Percentage(%)",
                 labels={"x":"Month",
                         "y":"Percentage(%)"}
@@ -102,7 +104,7 @@ graph1 = dcc.Graph(
 
 # 以px繪製星期圖，並丟入dcc.Graph
 chart2 = px.bar(x=df.groupby('week').size().index,
-                y=df.groupby('week').size(),
+                y=df.groupby('week').size()/df.groupby('week').size().sum()*100,
                 title="Week Percentage(%)",
                 labels={"x":"Week",
                         "y":"Percentage(%)"}
@@ -141,15 +143,14 @@ graph4 = dcc.Graph(
 
 # 版面配置
 row0 = html.Div(children=[year_slider])
-
-#row_black = html.Div(children=[blacklist])
 row_table = html.Div(children=[top3,blacklist], className="two columns")
-row_graph = html.Div(children=[year_slider,graph1, graph2, graph3, graph4], className="nine columns")
-# row1 = html.Div(children=[row_table, row_graph])
-# row2 = html.Div(children=[graph3, graph4])
+row_graph = html.Div(children=[year_slider,graph1, graph2, graph3, graph4],
+                     className='offset-by-three.column')
+row1 = html.Div(children=[row_table, row_graph])
+
 
 # 以html.Div建立layout物件
-layout = html.Div(children=[header, row_table, row_graph],
+layout = html.Div(children=[header, row1],
                   style={"text-align": "center"})
 
 # 將layout丟到app.layout才能在網頁輸出

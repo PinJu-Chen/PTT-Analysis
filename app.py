@@ -6,6 +6,7 @@ import plotly.express as px
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+from dash.dependencies import Input, Output
 import dash_table
 
 
@@ -72,7 +73,7 @@ top3 = dash_table.DataTable(
 # Blacklist table
 blacklist = dash_table.DataTable(
                 id='blacklist',
-                columns=[{"name": 'Black_id', "id": 'black_ID'}],
+                columns=[{"name": 'Black IDs', "id": 'black_ID'}],
                 data=blackdf.to_dict('records'),
                 filter_action="native",
                 editable=False,
@@ -95,44 +96,16 @@ year_slider = dcc.RangeSlider(id='year_slider',
                                   2020: '2020'},
                               min=2015,
                               max=2020,
-                              value=[2017,2020],
+                              value=[2018,2020],
                               className='ten columns')
 
-# 以px繪製月份圖，並丟入dcc.Graph
-chart1 = px.bar(x=df.groupby('month').size().index,
-                y=df.groupby('month').size()/df.groupby('month').size().sum()*100,
-                title="Month Percentage(%)",
-                labels={"x":"Month",
-                        "y":"Percentage(%)"},
-                category_orders={"x": 
-                                 ['Jan','Feb','Mar','Apr','May', 'Jun',
-                                  'Jul','Aug','Sep','Oct','Nov','Dec']}
-                )
+# 以dcc.Graph建立，以存放月份圖
+graphm = dcc.Graph(id='graphm',
+                   # selectedData={'points': [{'customdata': ['Jan','Feb','Mar','Apr','May', 'Jun','Jul','Aug','Sep','Oct','Nov','Dec']}]},
+                   className="five columns")
 
-
-graph1 = dcc.Graph(
-        id='graph1',
-        figure=chart1,
-        className="five columns"
-    )
-
-# 以px繪製星期圖，並丟入dcc.Graph
-chart2 = px.bar(x=df.groupby('week').size().index,
-                y=df.groupby('week').size()/df.groupby('week').size().sum()*100,
-                title="Week Percentage(%)",
-                labels={"x":"Week",
-                        "y":"Percentage(%)"},
-                category_orders={"x": 
-                                 ['Mon','Tue','Wed','Thu',
-                                  'Fri', 'Sat', 'Sun']}
-                )
-
-
-graph2 = dcc.Graph(
-        id='graph2',
-        figure=chart2,
-        className="five columns"
-    )
+# 以dcc.Graph建立，以存放星期圖
+graphw = dcc.Graph(id='graphw', className="five columns")
 
 # 以px繪製??圖，並丟入dcc.Graph
 chart3 = px.histogram(data_frame=iris_df,
@@ -159,20 +132,115 @@ graph4 = dcc.Graph(
     )
 
 # 版面配置
-row0 = html.Div(children=[year_slider])
+# row0 = html.Div(children=[year_slider])
 row_table = html.Div(children=[top3,blacklist], className="two columns")
-row_graph = html.Div(children=[year_slider,graph1, graph2, graph3, graph4],
+row_graph = html.Div(children=[year_slider,graphm, graphw, graph3, graph4],
                      className='offset-by-three.column')
 row1 = html.Div(children=[row_table, row_graph])
+row2 = html.Div(id='select')
 
 
 # 以html.Div建立layout物件
-layout = html.Div(children=[header, row1],
+layout = html.Div(children=[header, row1, row2],
                   style={"text-align": "center"})
+
 
 # 將layout丟到app.layout才能在網頁輸出
 app.title = '解析合購版'
 app.layout = layout
+
+
+'''-------------------Month callback------------------'''
+@app.callback(
+    Output('graphm', 'figure'),
+    Input('year_slider', 'value'))
+
+def update_graphm(selected_year):
+    # 資料梳理(排除非揪團文)
+    dfm = df[~(df.title.str.contains('公告')|
+               df.title.str.contains('黑人')|
+               df.title.str.contains('灰人')|
+               df.title.str.contains('黑名單')|
+               df.title.str.contains('判決')|
+               df.title.str.contains('無主'))]
+    dfm = dfm[dfm['year'].isin(selected_year)]
+
+    # 更新 graphm 月份圖
+    chartm = px.bar(x=dfm.groupby('month').size().index,
+                y=dfm.groupby('month').size(),
+                title="Posts by Month",
+                labels={"x":"Month",
+                        "y":"Posts"},
+                category_orders={"x": 
+                                 ['Jan','Feb','Mar','Apr','May', 'Jun',
+                                  'Jul','Aug','Sep','Oct','Nov','Dec']}
+                )
+    chartm.update_layout(clickmode='event+select')
+    return chartm
+
+'''-------------------Week callback------------------'''
+@app.callback(
+    Output('graphw', 'figure'),
+    Input('year_slider', 'value'),
+    Input('graphm', 'selectedData'))
+
+def upgrade_graphw(selected_year, selectedData):
+    # 資料梳理(排除非揪團文)
+    dfw = df[~(df.title.str.contains('公告')|
+                df.title.str.contains('黑人')|
+                df.title.str.contains('灰人')|
+                df.title.str.contains('黑名單')|
+                df.title.str.contains('判決')|
+                df.title.str.contains('無主'))]
+    dfw = dfw[dfw['year'].isin(selected_year)]
+    
+    if selectedData is not None:
+        filterm = []
+        for i in range(len(selectedData['points'])):
+            filterm.append(selectedData['points'][i].get('x'))
+        dfw = dfw[dfw['month'].isin(filterm)]
+            
+    chartw = px.bar(x=dfw.groupby('week').size().index,
+            y=dfw.groupby('week').size(),  # /dfm.groupby('week').size().sum()*100
+            title="Posts by Week",
+            labels={"x":"Week",
+                    "y":"Posts"},
+            category_orders={"x":['Mon','Tue','Wed','Thu','Fri', 'Sat', 'Sun']}
+            )
+    return  chartw
+
+'''-------------------top3 callback------------------'''
+@app.callback(
+    Output('top3', 'data'),
+    Input('year_slider', 'value'),
+    Input('graphm', 'selectedData'))
+
+def upgrade_top3(selected_year, selectedData):
+    # 資料梳理(排除非揪團文)
+    dft = df[~(df.title.str.contains('公告')|
+               df.title.str.contains('黑人')|
+               df.title.str.contains('灰人')|
+               df.title.str.contains('黑名單')|
+               df.title.str.contains('判決')|
+               df.title.str.contains('無主'))]
+    dft = dft[dft['year'].isin(selected_year)]
+    
+    if selectedData is not None:
+        filterm = []
+        for i in range(len(selectedData['points'])):
+            filterm.append(selectedData['points'][i].get('x'))
+        dft = dft[dft['month'].isin(filterm)]
+    
+    dft = pd.DataFrame(dft.groupby('author').count().nlargest(5, columns='id'))
+    dft['author'] = dft.index
+    
+    data3 = dft.head(3).to_dict('records')
+    return  data3
+
+# @app.callback(Output('select', 'children'), [Input('graphm', 'selectedData')])
+# def disp_hover_data(selectedData):
+#     if selectedData["points"][0]['x'] is not None:
+#         return selectedData["points"][0]['x']
 
 # 執行
 if __name__ == "__main__":

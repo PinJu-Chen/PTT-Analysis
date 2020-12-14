@@ -171,6 +171,7 @@ layout = html.Div(children=[header, row1],
                   style={"text-align": "center"})
 
 # 將layout丟到app.layout才能在網頁輸出
+app.title = '解析合購版'
 app.layout = layout
 
 # 執行

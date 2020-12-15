@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-import numpy as np
 import pandas as pd
-from sklearn.datasets import load_iris
 import plotly.express as px
 import dash
 import dash_core_components as dcc
@@ -11,25 +9,20 @@ import dash_table
 
 
 '''-------------------data-------------------'''
-# test data
-iris = load_iris() ## It returns simple dictionary like object with all data.
-iris_df = pd.DataFrame(data=np.concatenate((iris.data,iris.target.reshape(-1,1)), axis=1), columns=(iris.feature_names+['Flower Type']))
-iris_df["Flower Name"] = [iris.target_names[int(i)] for i in iris_df["Flower Type"]]
-
-dfc = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/gapminder2007.csv')
-
 # buytogether data
 df = pd.read_csv(r'D:\PCB\rawdata.csv')
 
 
 '''-------------------資料處理-------------------'''
-# 主揪top3
+# 排除不需要的文章
 dff = df[~(df.title.str.contains('公告')|
       df.title.str.contains('黑人')|
       df.title.str.contains('灰人')|
       df.title.str.contains('黑名單')|
       df.title.str.contains('判決')|
       df.title.str.contains('無主'))]
+
+# top3
 dft = pd.DataFrame(dff.groupby('author').count().nlargest(5, columns='id'))
 dft['author'] = dft.index
 
@@ -44,7 +37,6 @@ blackdf = df[(df.title.str.contains('黑人')|
           (df.year == 2017))&
           (~df.title.str.contains('RE:'))&
           (~df.title.str.contains('Re:'))]
-
 blackdf['black_ID'] = blackdf.title.str.replace('^.+?([a-zA-Z0-9]+).+$', r'\1')
 
 
@@ -99,49 +91,39 @@ year_slider = dcc.RangeSlider(id='year_slider',
                               value=[2018,2020],
                               className='ten columns')
 
-# 以dcc.Graph建立，以存放月份圖
-graphm = dcc.Graph(id='graphm',
+# 以dcc.Graph建立instance，存放月份圖
+month_bar = dcc.Graph(id='month_bar',
                    selectedData=None,
                    className="five columns")
 
-# 以dcc.Graph建立，以存放星期圖
-graphw = dcc.Graph(id='graphw', className="five columns")
+# 以dcc.Graph建立instance，存放星期圖
+week_bar = dcc.Graph(id='week_bar', className="five columns")
 
-# 以px繪製??圖，並丟入dcc.Graph
-chart3 = px.histogram(data_frame=iris_df,
-                      x="sepal length (cm)",
-                      title="Producst Types")
-
+# 以dcc.Graph建立instance，存放???
 graph3 = dcc.Graph(
         id='graph3',
-        figure=chart3,
+        # figure=,
         className="five columns"
     )
 
-# 以px繪製??圖，並丟入dcc.Graph
-chart4 = px.box(data_frame=iris_df,
-                x="Flower Name",
-                y="sepal width (cm)",
-                title="Payment Types")
-
-
+# 以dcc.Graph建立instance，存放???
 graph4 = dcc.Graph(
         id='graph4',
-        figure=chart4,
+        # figure=,
         className="five columns"
     )
 
 # 版面配置
 # row0 = html.Div(children=[year_slider])
-row_table = html.Div(children=[top3,blacklist], className="two columns")
-row_graph = html.Div(children=[year_slider,graphm, graphw, graph3, graph4],
+table_col = html.Div(children=[top3,blacklist], className="two columns")
+graph_col = html.Div(children=[year_slider,month_bar, week_bar, graph3, graph4],
                      className='offset-by-three.column')
-row1 = html.Div(children=[row_table, row_graph])
-row2 = html.Div(id='select')
+first_row = html.Div(children=[table_col, graph_col])
+second_row = html.Div(id='select')
 
 
 # 以html.Div建立layout物件
-layout = html.Div(children=[header, row1, row2],
+layout = html.Div(children=[header, first_row, second_row],
                   style={"text-align": "center"})
 
 
@@ -152,15 +134,15 @@ app.layout = layout
 
 '''-------------------Month callback------------------'''
 @app.callback(
-    Output('graphm', 'figure'),
-    Output('graphm', 'selectedData'),
+    Output('month_bar', 'figure'),
+    Output('month_bar', 'selectedData'),
     Input('year_slider', 'value'))
 
-def update_graphm(selected_year):
+def update_month_bar(selected_year):
     # 年度
     dfm = dff[dff['year'].isin(selected_year)]
 
-    # 更新 graphm 月份圖
+    # 更新 month_bar 月份圖
     chartm = px.bar(x=dfm.groupby('month').size().index,
                 y=dfm.groupby('month').size(),
                 title="Posts by Month",
@@ -177,22 +159,22 @@ def update_graphm(selected_year):
 
 '''-------------------Week callback------------------'''
 @app.callback(
-    Output('graphw', 'figure'),
+    Output('week_bar', 'figure'),
     Input('year_slider', 'value'),
-    Input('graphm', 'selectedData'))
+    Input('month_bar', 'selectedData'))
 
-def upgrade_graphw(selected_year, selectedData):
+def upgrade_week_bar(selected_year, selectedData):
     # 年度
     dfw = dff[dff['year'].isin(selected_year)]
     
-    # Shift + leftclick
+    # 月份 (Shift + leftclick)
     if selectedData is not None:
         filterm = []
         for i in range(len(selectedData['points'])):
             filterm.append(selectedData['points'][i].get('x'))
         dfw = dfw[dfw['month'].isin(filterm)]
 
-    # 更新 graphw 星期圖            
+    # 更新 week_bar 星期圖            
     chartw = px.bar(x=dfw.groupby('week').size().index,
                 y=dfw.groupby('week').size(),
                 title="Posts by Week",
@@ -209,13 +191,13 @@ def upgrade_graphw(selected_year, selectedData):
 @app.callback(
     Output('top3', 'data'),
     Input('year_slider', 'value'),
-    Input('graphm', 'selectedData'))
+    Input('month_bar', 'selectedData'))
 
 def upgrade_top3(selected_year, selectedData):
     # 年度
     dft = dff[dff['year'].isin(selected_year)]
     
-    # Shift + leftclick
+    # 月份 (Shift + leftclick)
     if selectedData is not None:
         filterm = []
         for i in range(len(selectedData['points'])):
@@ -225,8 +207,8 @@ def upgrade_top3(selected_year, selectedData):
     # 更新top3的data
     dft = pd.DataFrame(dft.groupby('author').count().nlargest(5, columns='id'))
     dft['author'] = dft.index    
-    data3 = dft.head(3).to_dict('records')
-    return  data3
+    data = dft.head(3).to_dict('records')
+    return  data
 
 
 # 執行

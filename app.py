@@ -24,13 +24,13 @@ df = pd.read_csv(r'D:\PCB\rawdata.csv')
 
 '''-------------------資料處理-------------------'''
 # 主揪top3
-dft = df[~(df.title.str.contains('公告')|
+dff = df[~(df.title.str.contains('公告')|
       df.title.str.contains('黑人')|
       df.title.str.contains('灰人')|
       df.title.str.contains('黑名單')|
       df.title.str.contains('判決')|
       df.title.str.contains('無主'))]
-dft = pd.DataFrame(dft.groupby('author').count().nlargest(5, columns='id'))
+dft = pd.DataFrame(dff.groupby('author').count().nlargest(5, columns='id'))
 dft['author'] = dft.index
 
 # 黑名單
@@ -101,7 +101,7 @@ year_slider = dcc.RangeSlider(id='year_slider',
 
 # 以dcc.Graph建立，以存放月份圖
 graphm = dcc.Graph(id='graphm',
-                   # selectedData={'points': [{'customdata': ['Jan','Feb','Mar','Apr','May', 'Jun','Jul','Aug','Sep','Oct','Nov','Dec']}]},
+                   selectedData=None,
                    className="five columns")
 
 # 以dcc.Graph建立，以存放星期圖
@@ -153,17 +153,12 @@ app.layout = layout
 '''-------------------Month callback------------------'''
 @app.callback(
     Output('graphm', 'figure'),
+    Output('graphm', 'selectedData'),
     Input('year_slider', 'value'))
 
 def update_graphm(selected_year):
-    # 資料梳理(排除非揪團文)
-    dfm = df[~(df.title.str.contains('公告')|
-               df.title.str.contains('黑人')|
-               df.title.str.contains('灰人')|
-               df.title.str.contains('黑名單')|
-               df.title.str.contains('判決')|
-               df.title.str.contains('無主'))]
-    dfm = dfm[dfm['year'].isin(selected_year)]
+    # 年度
+    dfm = dff[dff['year'].isin(selected_year)]
 
     # 更新 graphm 月份圖
     chartm = px.bar(x=dfm.groupby('month').size().index,
@@ -175,8 +170,10 @@ def update_graphm(selected_year):
                                  ['Jan','Feb','Mar','Apr','May', 'Jun',
                                   'Jul','Aug','Sep','Oct','Nov','Dec']}
                 )
+    # 設定clickmode，作為後續的input
     chartm.update_layout(clickmode='event+select')
-    return chartm
+    return chartm, None
+
 
 '''-------------------Week callback------------------'''
 @app.callback(
@@ -185,29 +182,28 @@ def update_graphm(selected_year):
     Input('graphm', 'selectedData'))
 
 def upgrade_graphw(selected_year, selectedData):
-    # 資料梳理(排除非揪團文)
-    dfw = df[~(df.title.str.contains('公告')|
-                df.title.str.contains('黑人')|
-                df.title.str.contains('灰人')|
-                df.title.str.contains('黑名單')|
-                df.title.str.contains('判決')|
-                df.title.str.contains('無主'))]
-    dfw = dfw[dfw['year'].isin(selected_year)]
+    # 年度
+    dfw = dff[dff['year'].isin(selected_year)]
     
+    # Shift + leftclick
     if selectedData is not None:
         filterm = []
         for i in range(len(selectedData['points'])):
             filterm.append(selectedData['points'][i].get('x'))
         dfw = dfw[dfw['month'].isin(filterm)]
-            
+
+    # 更新 graphw 星期圖            
     chartw = px.bar(x=dfw.groupby('week').size().index,
-            y=dfw.groupby('week').size(),  # /dfm.groupby('week').size().sum()*100
-            title="Posts by Week",
-            labels={"x":"Week",
-                    "y":"Posts"},
-            category_orders={"x":['Mon','Tue','Wed','Thu','Fri', 'Sat', 'Sun']}
-            )
+                y=dfw.groupby('week').size(),
+                title="Posts by Week",
+                labels={"x":"Week",
+                        "y":"Posts"},
+                category_orders={"x": 
+                                 ['Mon','Thu','Wed','Tue','Fri', 'Sat',
+                                  'Sun']}
+                )
     return  chartw
+
 
 '''-------------------top3 callback------------------'''
 @app.callback(
@@ -216,31 +212,22 @@ def upgrade_graphw(selected_year, selectedData):
     Input('graphm', 'selectedData'))
 
 def upgrade_top3(selected_year, selectedData):
-    # 資料梳理(排除非揪團文)
-    dft = df[~(df.title.str.contains('公告')|
-               df.title.str.contains('黑人')|
-               df.title.str.contains('灰人')|
-               df.title.str.contains('黑名單')|
-               df.title.str.contains('判決')|
-               df.title.str.contains('無主'))]
-    dft = dft[dft['year'].isin(selected_year)]
+    # 年度
+    dft = dff[dff['year'].isin(selected_year)]
     
+    # Shift + leftclick
     if selectedData is not None:
         filterm = []
         for i in range(len(selectedData['points'])):
             filterm.append(selectedData['points'][i].get('x'))
         dft = dft[dft['month'].isin(filterm)]
-    
+
+    # 更新top3的data
     dft = pd.DataFrame(dft.groupby('author').count().nlargest(5, columns='id'))
-    dft['author'] = dft.index
-    
+    dft['author'] = dft.index    
     data3 = dft.head(3).to_dict('records')
     return  data3
 
-# @app.callback(Output('select', 'children'), [Input('graphm', 'selectedData')])
-# def disp_hover_data(selectedData):
-#     if selectedData["points"][0]['x'] is not None:
-#         return selectedData["points"][0]['x']
 
 # 執行
 if __name__ == "__main__":

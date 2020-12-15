@@ -1,6 +1,5 @@
 import json
 import pandas as pd
-import re
 
 # 讀取json檔
 with open('D:\\PCB\\buytogether_version2.json', 'r', encoding="utf-8") as f:
@@ -21,7 +20,7 @@ buy2df = pd.DataFrame(all_list, columns=['id','author','title','date','ip','like
 # 建立年月週資料
 buy2df['year'] = buy2df['date'].apply(lambda x: x[20:24])
 buy2df['month'] = buy2df['date'].apply(lambda x: x[4:7])
-buy2df['week'] = buy2df['date'].apply(lambda x: x[0:4])
+buy2df['week'] = buy2df['date'].apply(lambda x: x[0:3])
 
 # 排除無法使用資料(星期正常，就不再處理)
 yearlist = ['2020','2019','2018','2017','2016',
@@ -43,27 +42,33 @@ df['author'] = df.author.str.split(" ", n=1, expand=True)
 
 df.to_csv(r'D:\PCB\rawdata.csv', index=False)
 
-# 排除非團購文章
-''''''
-df1 = df[~(df.title.str.contains('公告')|
-      df.title.str.contains('黑人')|
-      df.title.str.contains('灰人')|
-      df.title.str.contains('黑名單')|
-      df.title.str.contains('判決'))]
 
-# 非團購文章(用以做黑名單)
-blackdf = df[(df.title.str.contains('黑人')|
-          df.title.str.contains('灰人')|
-          df.title.str.contains('黑名單')|
-          df.title.str.contains('判決'))&
-          (df.year.str.contains('2020')|
-          df.year.str.contains('2019')|
-          df.year.str.contains('2018')|
-          df.year.str.contains('2017'))&
-          (~df.title.str.contains('RE:'))&
-          (~df.title.str.contains('Re:'))]
 
-blackdf['ID_test'] = blackdf.title.str.replace('^.+?([a-zA-Z0-9]+).+$', r'\1')
+# ---------------------------以下都用不到---------------------------
+# # 排除非團購文章
+# ''''''
+# df1 = df[~(df.title.str.contains('公告')|
+#       df.title.str.contains('黑人')|
+#       df.title.str.contains('灰人')|
+#       df.title.str.contains('黑名單')|
+#       df.title.str.contains('判決'))]
+
+# # 非團購文章(用以做黑名單)
+# blackdf = df[(df.title.str.contains('黑人')|
+#           df.title.str.contains('灰人')|
+#           df.title.str.contains('黑名單')|
+#           df.title.str.contains('判決'))&
+#           (df.year.str.contains('2020')|
+#           df.year.str.contains('2019')|
+#           df.year.str.contains('2018')|
+#           df.year.str.contains('2017'))&
+#           (~df.title.str.contains('RE:'))&
+#           (~df.title.str.contains('Re:'))]
+
+# blackdf['ID_test'] = blackdf.title.str.replace('^.+?([a-zA-Z0-9]+).+$', r'\1')
+
+# test.content.str.extract(r'[收匯]款銀行.(\w+).')
+
 '''
 # 2020年各月次數
 df1[(~df1.title.str.contains('無主'))&

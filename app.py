@@ -10,7 +10,7 @@ import dash_table
 
 '''-------------------data-------------------'''
 # buytogether data
-df = pd.read_csv(r'D:\PCB\rawdata.csv')
+df = pd.read_csv(r'rawdata.csv')
 
 
 '''-------------------資料處理-------------------'''
@@ -46,6 +46,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 # 建立app
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+server = app.server
 
 # 主標
 header = html.H1(children="解析合購版",style={'font-weight': 'bold'})

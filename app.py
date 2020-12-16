@@ -9,19 +9,8 @@ import dash_table
 
 
 '''-------------------data-------------------'''
-<<<<<<< HEAD
-# test data
-iris = load_iris() ## It returns simple dictionary like object with all data.
-iris_df = pd.DataFrame(data=np.concatenate((iris.data,iris.target.reshape(-1,1)), axis=1), columns=(iris.feature_names+['Flower Type']))
-iris_df["Flower Name"] = [iris.target_names[int(i)] for i in iris_df["Flower Type"]]
-
-dfc = pd.read_csv(r'gapminder2007.csv')
-
-=======
->>>>>>> 6d15e97e12e1dc440080b2de057913a330c72f1a
 # buytogether data
-df = pd.read_csv(r'rawdata.csv')
-# >>>>>>> Stashed changes
+df = pd.read_csv(r'D:\PCB\rawdata.csv')
 
 
 '''-------------------資料處理-------------------'''
@@ -36,7 +25,7 @@ dff = df[~(df.title.str.contains('公告')|
 # top3
 dft = pd.DataFrame(dff.groupby('author').count().nlargest(5, columns='id'))
 dft['author'] = dft.index
-print(dft)
+
 # 黑名單
 blackdf = df[(df.title.str.contains('黑人')|
           df.title.str.contains('灰人')|

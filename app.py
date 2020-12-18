@@ -132,27 +132,25 @@ layout = html.Div(children=[header, first_row, second_row],
 app.title = '解析合購版'
 app.layout = layout
 
-
 '''-------------------Month callback------------------'''
 @app.callback(
     Output('month_bar', 'figure'),
     Output('month_bar', 'selectedData'),
     Input('year_slider', 'value'))
-
 def update_month_bar(selected_year):
     # 年度
-    dfm = dff[dff['year'].isin(selected_year)]
+    dfm = dff[(dff['year'] <= max(selected_year)) & (dff['year'] >= min(selected_year))]
 
     # 更新 month_bar 月份圖
     chartm = px.bar(x=dfm.groupby('month').size().index,
-                y=dfm.groupby('month').size(),
-                title="Posts by Month",
-                labels={"x":"Month",
-                        "y":"Posts"},
-                category_orders={"x": 
-                                 ['Jan','Feb','Mar','Apr','May', 'Jun',
-                                  'Jul','Aug','Sep','Oct','Nov','Dec']}
-                )
+                    y=dfm.groupby('month').size(),
+                    title="Posts by Month",
+                    labels={"x": "Month",
+                            "y": "Posts"},
+                    category_orders={"x":
+                                         ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']}
+                    )
     # 設定clickmode，作為後續的input
     chartm.update_layout(clickmode='event+select')
     return chartm, None
@@ -163,11 +161,10 @@ def update_month_bar(selected_year):
     Output('week_bar', 'figure'),
     Input('year_slider', 'value'),
     Input('month_bar', 'selectedData'))
-
 def upgrade_week_bar(selected_year, selectedData):
     # 年度
-    dfw = dff[dff['year'].isin(selected_year)]
-    
+    dfw = dff[(dff['year'] <= max(selected_year)) & (dff['year'] >= min(selected_year))]
+
     # 月份 (Shift + leftclick)
     if selectedData is not None:
         filterm = []
@@ -175,17 +172,17 @@ def upgrade_week_bar(selected_year, selectedData):
             filterm.append(selectedData['points'][i].get('x'))
         dfw = dfw[dfw['month'].isin(filterm)]
 
-    # 更新 week_bar 星期圖            
+    # 更新 week_bar 星期圖
     chartw = px.bar(x=dfw.groupby('week').size().index,
-                y=dfw.groupby('week').size(),
-                title="Posts by Week",
-                labels={"x":"Week",
-                        "y":"Posts"},
-                category_orders={"x": 
-                                 ['Mon','Thu','Wed','Tue','Fri', 'Sat',
-                                  'Sun']}
-                )
-    return  chartw
+                    y=dfw.groupby('week').size(),
+                    title="Posts by Week",
+                    labels={"x": "Week",
+                            "y": "Posts"},
+                    category_orders={"x":
+                                         ['Mon', 'Thu', 'Wed', 'Tue', 'Fri', 'Sat',
+                                          'Sun']}
+                    )
+    return chartw
 
 
 '''-------------------top3 callback------------------'''
@@ -193,11 +190,10 @@ def upgrade_week_bar(selected_year, selectedData):
     Output('top3', 'data'),
     Input('year_slider', 'value'),
     Input('month_bar', 'selectedData'))
-
 def upgrade_top3(selected_year, selectedData):
     # 年度
-    dft = dff[dff['year'].isin(selected_year)]
-    
+    dft = dff[(dff['year'] <= max(selected_year)) & (dff['year'] >= min(selected_year))]
+
     # 月份 (Shift + leftclick)
     if selectedData is not None:
         filterm = []
@@ -207,9 +203,9 @@ def upgrade_top3(selected_year, selectedData):
 
     # 更新top3的data
     dft = pd.DataFrame(dft.groupby('author').count().nlargest(5, columns='id'))
-    dft['author'] = dft.index    
+    dft['author'] = dft.index
     data = dft.head(3).to_dict('records')
-    return  data
+    return data
 
 
 # 執行

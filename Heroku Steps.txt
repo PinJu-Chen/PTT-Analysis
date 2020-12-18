@@ -1,0 +1,25 @@
+URL: https://pbc-buytogether.herokuapp.com/
+
+
+以Git將app.py部屬至Heroku雲端平台
+
+ 1. 建立Heroku帳號並創建App名稱
+
+ 2. 下載Git及Heroku CLI
+
+ 3. 於本機創建新專案資料夾
+
+ 4. 於專案資料夾建議程式、資料等
+
+ 5. server = app.server
+
+ 6. 安裝所需套件
+
+ 7. 建立.gitignore、Procfile、requirements
+
+ 8. pip freeze > requirements.txt
+
+ 9. 於terminal登入Heroku
+
+10. 以Git將專案clone至Heroku
+

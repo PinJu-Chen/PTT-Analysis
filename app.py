@@ -9,19 +9,8 @@ import dash_table
 
 
 '''-------------------data-------------------'''
-<<<<<<< HEAD
-# test data
-iris = load_iris() ## It returns simple dictionary like object with all data.
-iris_df = pd.DataFrame(data=np.concatenate((iris.data,iris.target.reshape(-1,1)), axis=1), columns=(iris.feature_names+['Flower Type']))
-iris_df["Flower Name"] = [iris.target_names[int(i)] for i in iris_df["Flower Type"]]
-
-dfc = pd.read_csv(r'gapminder2007.csv')
-
-=======
->>>>>>> 6d15e97e12e1dc440080b2de057913a330c72f1a
 # buytogether data
 df = pd.read_csv(r'rawdata.csv')
-# >>>>>>> Stashed changes
 
 
 '''-------------------資料處理-------------------'''
@@ -31,12 +20,15 @@ dff = df[~(df.title.str.contains('公告')|
       df.title.str.contains('灰人')|
       df.title.str.contains('黑名單')|
       df.title.str.contains('判決')|
+      df.title.str.contains('版務')|
+      df.title.str.contains('尋人')|
+      df.title.str.contains('閒聊')|
       df.title.str.contains('無主'))]
 
 # top3
 dft = pd.DataFrame(dff.groupby('author').count().nlargest(5, columns='id'))
 dft['author'] = dft.index
-print(dft)
+
 # 黑名單
 blackdf = df[(df.title.str.contains('黑人')|
           df.title.str.contains('灰人')|
@@ -57,6 +49,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 # 建立app
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+server = app.server
 
 # 主標
 header = html.H1(children="解析合購版",style={'font-weight': 'bold'})
@@ -111,23 +104,15 @@ month_bar = dcc.Graph(id='month_bar',
 week_bar = dcc.Graph(id='week_bar', className="five columns")
 
 # 以dcc.Graph建立instance，存放???
-graph3 = dcc.Graph(
-        id='graph3',
-        # figure=,
-        className="five columns"
-    )
+product_pie = dcc.Graph(id='product_pie', className="five columns")
 
 # 以dcc.Graph建立instance，存放???
-graph4 = dcc.Graph(
-        id='graph4',
-        # figure=,
-        className="five columns"
-    )
+bank_pie = dcc.Graph(id='bank_pie', className="five columns")
 
 # 版面配置
 # row0 = html.Div(children=[year_slider])
 table_col = html.Div(children=[top3,blacklist], className="two columns")
-graph_col = html.Div(children=[year_slider,month_bar, week_bar, graph3, graph4],
+graph_col = html.Div(children=[year_slider,month_bar, week_bar, product_pie, bank_pie],
                      className='offset-by-three.column')
 first_row = html.Div(children=[table_col, graph_col])
 second_row = html.Div(id='select')
@@ -142,27 +127,25 @@ layout = html.Div(children=[header, first_row, second_row],
 app.title = '解析合購版'
 app.layout = layout
 
-
 '''-------------------Month callback------------------'''
 @app.callback(
     Output('month_bar', 'figure'),
     Output('month_bar', 'selectedData'),
     Input('year_slider', 'value'))
-
 def update_month_bar(selected_year):
     # 年度
-    dfm = dff[dff['year'].isin(selected_year)]
+    dfm = dff[(dff['year'] <= max(selected_year)) & (dff['year'] >= min(selected_year))]
 
     # 更新 month_bar 月份圖
     chartm = px.bar(x=dfm.groupby('month').size().index,
-                y=dfm.groupby('month').size(),
-                title="Posts by Month",
-                labels={"x":"Month",
-                        "y":"Posts"},
-                category_orders={"x": 
-                                 ['Jan','Feb','Mar','Apr','May', 'Jun',
-                                  'Jul','Aug','Sep','Oct','Nov','Dec']}
-                )
+                    y=dfm.groupby('month').size(),
+                    title="Posts by Month",
+                    labels={"x": "Month",
+                            "y": "Posts"},
+                    category_orders={"x":
+                                         ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']}
+                    )
     # 設定clickmode，作為後續的input
     chartm.update_layout(clickmode='event+select')
     return chartm, None
@@ -173,11 +156,10 @@ def update_month_bar(selected_year):
     Output('week_bar', 'figure'),
     Input('year_slider', 'value'),
     Input('month_bar', 'selectedData'))
-
 def upgrade_week_bar(selected_year, selectedData):
     # 年度
-    dfw = dff[dff['year'].isin(selected_year)]
-    
+    dfw = dff[(dff['year'] <= max(selected_year)) & (dff['year'] >= min(selected_year))]
+
     # 月份 (Shift + leftclick)
     if selectedData is not None:
         filterm = []
@@ -185,17 +167,67 @@ def upgrade_week_bar(selected_year, selectedData):
             filterm.append(selectedData['points'][i].get('x'))
         dfw = dfw[dfw['month'].isin(filterm)]
 
-    # 更新 week_bar 星期圖            
+    # 更新 week_bar 星期圖
     chartw = px.bar(x=dfw.groupby('week').size().index,
-                y=dfw.groupby('week').size(),
-                title="Posts by Week",
-                labels={"x":"Week",
-                        "y":"Posts"},
-                category_orders={"x": 
-                                 ['Mon','Thu','Wed','Tue','Fri', 'Sat',
-                                  'Sun']}
-                )
-    return  chartw
+                    y=dfw.groupby('week').size(),
+                    title="Posts by Week",
+                    labels={"x": "Week",
+                            "y": "Posts"},
+                    category_orders={"x":
+                                         ['Mon', 'Thu', 'Wed', 'Tue', 'Fri', 'Sat',
+                                          'Sun']}
+                    )
+    return chartw
+
+
+'''-------------------Product callback------------------'''
+@app.callback(
+    Output('product_pie', 'figure'),
+    Input('year_slider', 'value'),
+    Input('month_bar', 'selectedData'))
+def upgrade_product_pie(selected_year, selectedData):
+    # 年度
+    dfp = dff[(dff['year'] <= max(selected_year)) & (dff['year'] >= min(selected_year))]
+
+    # 月份 (Shift + leftclick)
+    if selectedData is not None:
+        filterm = []
+        for i in range(len(selectedData['points'])):
+            filterm.append(selectedData['points'][i].get('x'))
+        dfp = dfp[dfp['month'].isin(filterm)]
+
+    # 更新 product_pie 商品圓餅圖
+    piep = px.pie(values=dfp['product'].value_counts().values,
+                  names=dfp['product'].value_counts().index,
+                  title="Product-type"
+                    )
+    piep.update_traces(textposition='inside', textinfo='percent+label')
+    return piep
+
+
+'''-------------------Bank callback------------------'''
+@app.callback(
+    Output('bank_pie', 'figure'),
+    Input('year_slider', 'value'),
+    Input('month_bar', 'selectedData'))
+def upgrade_bank_pie(selected_year, selectedData):
+    # 年度
+    dfb = dff[(dff['year'] <= max(selected_year)) & (dff['year'] >= min(selected_year))]
+
+    # 月份 (Shift + leftclick)
+    if selectedData is not None:
+        filterm = []
+        for i in range(len(selectedData['points'])):
+            filterm.append(selectedData['points'][i].get('x'))
+        dfb = dfb[dfb['month'].isin(filterm)]
+
+    # 更新 product_pie 商品圓餅圖
+    bankp = px.pie(values=dfb['bank'].value_counts().values,
+                   names=dfb['bank'].value_counts().index,
+                   title="Bank-type"
+                   )
+    bankp.update_traces(textposition='inside', textinfo='percent+label')
+    return bankp
 
 
 '''-------------------top3 callback------------------'''
@@ -203,11 +235,10 @@ def upgrade_week_bar(selected_year, selectedData):
     Output('top3', 'data'),
     Input('year_slider', 'value'),
     Input('month_bar', 'selectedData'))
-
 def upgrade_top3(selected_year, selectedData):
     # 年度
-    dft = dff[dff['year'].isin(selected_year)]
-    
+    dft = dff[(dff['year'] <= max(selected_year)) & (dff['year'] >= min(selected_year))]
+
     # 月份 (Shift + leftclick)
     if selectedData is not None:
         filterm = []
@@ -217,9 +248,9 @@ def upgrade_top3(selected_year, selectedData):
 
     # 更新top3的data
     dft = pd.DataFrame(dft.groupby('author').count().nlargest(5, columns='id'))
-    dft['author'] = dft.index    
+    dft['author'] = dft.index
     data = dft.head(3).to_dict('records')
-    return  data
+    return data
 
 
 # 執行

@@ -20,6 +20,9 @@ dff = df[~(df.title.str.contains('公告')|
       df.title.str.contains('灰人')|
       df.title.str.contains('黑名單')|
       df.title.str.contains('判決')|
+      df.title.str.contains('版務')|
+      df.title.str.contains('尋人')|
+      df.title.str.contains('閒聊')|
       df.title.str.contains('無主'))]
 
 # top3
@@ -101,23 +104,15 @@ month_bar = dcc.Graph(id='month_bar',
 week_bar = dcc.Graph(id='week_bar', className="five columns")
 
 # 以dcc.Graph建立instance，存放???
-graph3 = dcc.Graph(
-        id='graph3',
-        # figure=,
-        className="five columns"
-    )
+product_pie = dcc.Graph(id='product_pie', className="five columns")
 
 # 以dcc.Graph建立instance，存放???
-graph4 = dcc.Graph(
-        id='graph4',
-        # figure=,
-        className="five columns"
-    )
+bank_pie = dcc.Graph(id='bank_pie', className="five columns")
 
 # 版面配置
 # row0 = html.Div(children=[year_slider])
 table_col = html.Div(children=[top3,blacklist], className="two columns")
-graph_col = html.Div(children=[year_slider,month_bar, week_bar, graph3, graph4],
+graph_col = html.Div(children=[year_slider,month_bar, week_bar, product_pie, bank_pie],
                      className='offset-by-three.column')
 first_row = html.Div(children=[table_col, graph_col])
 second_row = html.Div(id='select')
@@ -183,6 +178,56 @@ def upgrade_week_bar(selected_year, selectedData):
                                           'Sun']}
                     )
     return chartw
+
+
+'''-------------------Product callback------------------'''
+@app.callback(
+    Output('product_pie', 'figure'),
+    Input('year_slider', 'value'),
+    Input('month_bar', 'selectedData'))
+def upgrade_product_pie(selected_year, selectedData):
+    # 年度
+    dfp = dff[(dff['year'] <= max(selected_year)) & (dff['year'] >= min(selected_year))]
+
+    # 月份 (Shift + leftclick)
+    if selectedData is not None:
+        filterm = []
+        for i in range(len(selectedData['points'])):
+            filterm.append(selectedData['points'][i].get('x'))
+        dfp = dfp[dfp['month'].isin(filterm)]
+
+    # 更新 product_pie 商品圓餅圖
+    piep = px.pie(values=dfp['product'].value_counts().values,
+                  names=dfp['product'].value_counts().index,
+                  title="Product-type"
+                    )
+    piep.update_traces(textposition='inside', textinfo='percent+label')
+    return piep
+
+
+'''-------------------Bank callback------------------'''
+@app.callback(
+    Output('bank_pie', 'figure'),
+    Input('year_slider', 'value'),
+    Input('month_bar', 'selectedData'))
+def upgrade_bank_pie(selected_year, selectedData):
+    # 年度
+    dfb = dff[(dff['year'] <= max(selected_year)) & (dff['year'] >= min(selected_year))]
+
+    # 月份 (Shift + leftclick)
+    if selectedData is not None:
+        filterm = []
+        for i in range(len(selectedData['points'])):
+            filterm.append(selectedData['points'][i].get('x'))
+        dfb = dfb[dfb['month'].isin(filterm)]
+
+    # 更新 product_pie 商品圓餅圖
+    bankp = px.pie(values=dfb['bank'].value_counts().values,
+                   names=dfb['bank'].value_counts().index,
+                   title="Bank-type"
+                   )
+    bankp.update_traces(textposition='inside', textinfo='percent+label')
+    return bankp
 
 
 '''-------------------top3 callback------------------'''

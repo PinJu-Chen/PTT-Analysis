@@ -2,14 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ef5cf6de-14bb-4c55-b1b1-8f1127c5f8b6" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/PTT-Analysis.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gapminder2007.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rawdata.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PTT crawler.py" beforeDir="false" afterPath="$PROJECT_DIR$/PTT crawler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_manipulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_manipulation.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bank.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chart1.py" beforeDir="false" afterPath="$PROJECT_DIR$/chart1.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

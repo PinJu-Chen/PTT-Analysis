@@ -139,7 +139,7 @@ def update_month_bar(selected_year):
     # 更新 month_bar 月份圖
     chartm = px.bar(x=dfm.groupby('month').size().index,
                     y=dfm.groupby('month').size(),
-                    title="Posts by Month",
+                    title="Posts by Month" + "<br>" + '<span style="font-size: 12px;">Select and filter</span>',
                     labels={"x": "Month",
                             "y": "Posts"},
                     category_orders={"x":
@@ -221,7 +221,7 @@ def upgrade_bank_pie(selected_year, selectedData):
             filterm.append(selectedData['points'][i].get('x'))
         dfb = dfb[dfb['month'].isin(filterm)]
 
-    # 更新 product_pie 商品圓餅圖
+    # 更新 bank_pie 銀行圓餅圖
     bankp = px.pie(values=dfb['bank'].value_counts().values,
                    names=dfb['bank'].value_counts().index,
                    title="Bank-type"

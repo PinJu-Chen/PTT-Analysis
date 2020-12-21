@@ -22,7 +22,7 @@ buy2df = pd.DataFrame(all_list, columns=['id','author','title','date','ip','like
 # 建立年月週資料
 buy2df['year'] = buy2df['date'].apply(lambda x: x[20:24])
 buy2df['month'] = buy2df['date'].apply(lambda x: x[4:7])
-buy2df['week'] = buy2df['date'].apply(lambda x: x[0:4])
+buy2df['week'] = buy2df['date'].apply(lambda x: x[0:3])
 
 # 排除無法使用資料(星期正常，就不再處理)
 yearlist = ['2020','2019','2018','2017','2016',

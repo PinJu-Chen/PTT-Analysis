@@ -10,7 +10,7 @@ import dash_table
 
 '''-------------------data-------------------'''
 # buytogether data
-df = pd.read_csv(r'https://github.com/PinJu-Chen/PTT-Analysis/blob/main/rawdata.csv')
+df = pd.read_csv(r'rawdata.csv')
 
 
 '''-------------------資料處理-------------------'''

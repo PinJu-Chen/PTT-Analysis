@@ -4,6 +4,7 @@ import pandas as pd
 # import re
 
 # 讀取json檔
+# C:\\Users\\吳金擇\\Desktop\\PTT-Analysis\\file\\rawdata.json
 with open('rawdata.json', 'r', encoding="utf-8") as f:
     data = json.loads(f.read())
 

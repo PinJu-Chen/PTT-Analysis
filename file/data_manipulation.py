@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import pandas as pd
-import re
+# import re
 
 # 讀取json檔
 with open('rawdata.json', 'r', encoding="utf-8") as f:

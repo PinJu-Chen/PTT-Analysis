@@ -4,7 +4,7 @@ import pandas as pd
 import re
 
 # 讀取json檔
-with open('C:\\Users\\吳金擇\\Desktop\\PTT-Analysis\\rawdata.json', 'r', encoding="utf-8") as f:
+with open('rawdata.json', 'r', encoding="utf-8") as f:
     data = json.loads(f.read())
 
 # 建立list用以儲存json所需欄位
@@ -77,7 +77,7 @@ d = {'衣飾':['衣', '裙', '鞋', '包', '背心', '手套', '袋', '圍巾', 
      '寵物':['飼料', '貓', '狗', '寵物', '寵', '藝'],
      '票券':['券', '來回', '交通', '票', '優惠', '團報', '卷', '課', '飯店', '岩盤美浴', '方案', '溫泉', 'yoga', '師大', '療程']}
 # 全改為小寫，以方便對照
-df['title'].str.lower()
+df['title'] = df['title'].str.lower()
 for i in d.keys():
     for j in range(len(d[i])):
         d[i][j] = d[i][j].lower()
@@ -113,6 +113,11 @@ b = {'郵局':['郵局', '中華郵政', '郵政'],
      '匯豐':['匯豐'], '華泰':['華泰'], '陽信':['陽信'], '聯邦':['聯邦'],
      '玉山':['玉山'], '凱基':['凱基'], '星展':['星展'],
      }
+# 全改為小寫，以方便對照
+df['content'] = df['content'].str.lower()
+for i in b.keys():
+    for j in range(len(b[i])):
+        b[i][j] = b[i][j].lower()
 
 # 建立bank清單，並以長度做排序
 bank = []
@@ -130,6 +135,6 @@ def banktype(content):
 # 將分類函數套用至df
 df['bank'] = df['content'].apply(lambda x: banktype(x))
 
-df.to_csv(r'C:\Users\吳金擇\Desktop\PTT-Analysis\rawdata.csv', index=False)
+df.to_csv(r'rawdata.csv', index=False)
 
          

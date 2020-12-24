@@ -12,6 +12,7 @@
 接著透過plotly、Dash兩套件，製作互動式視覺化圖表，  
 最後以Git、Heroku部屬網頁。
 
-## 網頁連結與截圖
-[連結](https://pbc-buytogether.herokuapp.com/)
-![圖片]()
+## 連結與截圖
+[網頁連結](https://pbc-buytogether.herokuapp.com/)  
+[影片連結](https://pbc-buytogether.herokuapp.com/)  
+![網頁截圖]()

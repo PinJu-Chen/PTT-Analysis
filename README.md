@@ -14,5 +14,5 @@
 
 ## 連結與截圖
 [網頁連結](https://pbc-buytogether.herokuapp.com/)  
-[影片連結](https://pbc-buytogether.herokuapp.com/)  
+[影片連結]()  
 ![網頁截圖]()

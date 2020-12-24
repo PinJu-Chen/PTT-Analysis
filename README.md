@@ -15,4 +15,4 @@
 ## 連結與截圖
 [網頁連結](https://pbc-buytogether.herokuapp.com/)  
 [影片連結]()  
-![網頁截圖]()
+![網頁截圖](https://github.com/PinJu-Chen/PTT-Analysis/blob/main/file/prtscr.jpg)

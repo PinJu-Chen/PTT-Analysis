@@ -10,7 +10,7 @@
 以requests、BeautifulSoup抓取合購版文章，  
 再以pandas做資料處理，  
 接著透過plotly、Dash製作互動式視覺化圖表，  
-最後以Git、Heroku部屬網頁。
+最後以Git、Heroku部屬網頁。  
 \* 執行app.py須安裝的套件: pandas, plotly, Dash
 
 ## 連結與截圖

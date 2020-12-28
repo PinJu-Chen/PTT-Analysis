@@ -14,11 +14,8 @@
 
 ## 連結與截圖
 [網頁連結](https://pbc-buytogether.herokuapp.com/)  
-[影片連結](https://drive.google.com/file/d/11hxTunMbw0F-aRaXMiodzWkXBhOrrrJn/view?usp=sharing)(忘記錄心得跟未來展望了QQ...)  
+[影片連結](https://www.youtube.com/watch?v=ayX3vNVFmXc&feature=youtu.be)  
 ![網頁截圖](https://github.com/PinJu-Chen/PTT-Analysis/blob/main/file/prtscr.jpg)
-
-## 心得感想
-(待補待補)
 
 ## 未來展望
 ### 短期
@@ -29,3 +26,7 @@
 ### 長期
 *  應用於其他資料，製作更多商業智慧分析
  
+## 心得感想
+透過此次專題，將課堂內學習的基礎觀念，配合課內外的套件，  
+實際做出成品，還能搭上近年正夯的商業智慧分析，  
+是個豐富的專題實作經驗。

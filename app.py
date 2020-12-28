@@ -49,7 +49,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 # 建立app
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-server = app.server
+# server = app.server
 
 # 主標
 header = html.H1(children="解析合購版",style={'font-weight': 'bold'})

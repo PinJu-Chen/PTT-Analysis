@@ -11,6 +11,7 @@
 再以pandas做資料處理，  
 接著透過plotly、Dash製作互動式視覺化圖表，  
 最後以Git、Heroku部屬網頁。
+* 執行app.py須安裝的套件: pandas, plotly, Dash
 
 ## 連結與截圖
 [網頁連結](https://pbc-buytogether.herokuapp.com/)  

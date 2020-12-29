@@ -15,7 +15,7 @@
 
 ## 連結與截圖
 [網頁連結](https://pbc-buytogether.herokuapp.com/)(首次開啟，因要安裝套件，會較久)  
-[影片連結](https://www.youtube.com/watch?v=ayX3vNVFmXc&feature=youtu.be)  
+[影片連結](https://youtu.be/M2MpbRQ2Bx0)  <!--https://www.youtube.com/watch?v=ayX3vNVFmXc&feature=youtu.be-->
 ![網頁截圖](https://github.com/PinJu-Chen/PTT-Analysis/blob/main/file/prtscr.jpg)
 
 ## 心得感想
